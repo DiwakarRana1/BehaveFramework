@@ -1,4 +1,6 @@
 import logging
+import os
+
 import allure
 from selenium import webdriver
 from utility.browser_selection import get_driver, open_new_window
@@ -18,16 +20,21 @@ def before_scenario(context, scenario):
         open_new_window(context.driver)
 
 def after_scenario(context, scenario):
-    """Take screenshot on failure and quit WebDriver after each scenario."""
+    """Take a screenshot on scenario failure and attach it to Allure."""
     if scenario.status == "failed":
         screenshot_path = take_screenshot(context.driver, scenario.name)
-        try:
-            with open(screenshot_path, "rb") as image_file:
-                allure.attach(image_file.read(), name="Failure Screenshot", attachment_type=allure.attachment_type.PNG)
-        except Exception as e:
-            logging.error(f"Error attaching screenshot to report: {e}")
+        if os.path.exists(screenshot_path):  # Ensure screenshot exists before attaching
+            try:
+                with open(screenshot_path, "rb") as image_file:
+                    allure.attach(image_file.read(), name="Failure Screenshot", attachment_type=allure.attachment_type.PNG)
+                logging.info(f"Failure screenshot attached for scenario: {scenario.name}")
+            except Exception as e:
+                logging.error(f"Error attaching failure screenshot: {e}")
+        else:
+            logging.error(f"Failure screenshot not found for scenario: {scenario.name}")
 
     context.driver.quit()
+
 
 def before_feature(context, feature):
     """Optional: Perform actions before a feature starts."""
@@ -38,15 +45,18 @@ def after_feature(context, feature):
     logging.info(f"Finished Feature: {feature.name}")
 
 def before_step(context, step):
-    """Optional: Log the execution of each step."""
+    """Log the execution of each step."""
     logging.info(f"Executing Step: {step.name}")
 
 def after_step(context, step):
-    """Optional: Take screenshot on failed step."""
-    if step.status == "failed":
-        screenshot_path = take_screenshot(context.driver, step.name)
+    """Take a screenshot after every step and attach it to the Allure report."""
+    screenshot_path = take_screenshot(context.driver, step.name)  # Take screenshot for every step
+    if os.path.exists(screenshot_path):  # Ensure screenshot is saved before attaching
         try:
             with open(screenshot_path, "rb") as image_file:
-                allure.attach(image_file.read(), name="Step Failure Screenshot", attachment_type=allure.attachment_type.PNG)
+                allure.attach(image_file.read(), name=f"Step Screenshot - {step.name}", attachment_type=allure.attachment_type.PNG)
+            logging.info(f"Screenshot attached for step: {step.name}")
         except Exception as e:
-            logging.error(f"Could not attach screenshot: {e}")
+            logging.error(f"Could not attach screenshot for step {step.name}: {e}")
+    else:
+        logging.error(f"Screenshot not found for step: {step.name}")
