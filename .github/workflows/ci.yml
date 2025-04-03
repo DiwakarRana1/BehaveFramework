@@ -33,6 +33,11 @@ jobs:
       - name: Run Behave Tests
         run: behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results
 
+      - name: Install Allure Commandline
+        run: |
+          sudo apt update
+          sudo apt install -y allure
+
       - name: Debug Allure Results Directory
         run: ls -R reports/allure-results || echo "Directory not found"
 
