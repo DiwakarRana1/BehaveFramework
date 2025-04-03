@@ -3,7 +3,7 @@ name: Run Behave Tests
 on:
   push:
     branches:
-      - Reporting
+      - '**'
   pull_request:
     branches:
       - master
