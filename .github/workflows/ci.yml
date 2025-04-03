@@ -25,7 +25,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install allure-behave
+          
 
       - name: Ensure Allure Results Directory Exists
         run: mkdir -p reports/allure-results
@@ -36,9 +36,12 @@ jobs:
       - name: Debug Allure Results Directory
         run: ls -R reports/allure-results || echo "Directory not found"
 
-      - name: Upload Allure Results
-        uses: actions/upload-artifact@v4
+      - name: Generate Allure HTML Report
+        run: |
+          allure generate reports/allure-results -o reports/allure-report --clean
+
+      - name: Upload Allure HTML Report
+        uses: actions/upload-artifact@v3
         with:
-          name: allure-results
-          path: reports/allure-results
-        continue-on-error: true
+          name: allure-html-report
+          path: reports/allure-report
