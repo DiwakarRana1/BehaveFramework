@@ -3,7 +3,7 @@ name: Run Behave Tests
 on:
   push:
     branches:
-      - Reporting  # Adjust this to the branch you want to trigger the workflow
+      - Reporting
   pull_request:
     branches:
       - master
@@ -19,34 +19,31 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'  # Adjust the version as needed
+          python-version: '3.12'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-
-      - name: Ensure Allure Results Directory Exists
-        run: mkdir -p reports/allure-results
 
       - name: Run Behave Tests
         run: behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results
 
       - name: Install Allure Commandline
         run: |
-          sudo apt update
-          sudo apt install -y allure
-
-      - name: Debug Allure Results Directory
-        run: ls -R reports/allure-results || echo "Directory not found"
+          wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.23.0.tgz
+          tar -zxvf allure-2.23.0.tgz
+          sudo mv allure-2.23.0 /opt/allure
+          echo "export PATH=\$PATH:/opt/allure/bin" >> ~/.bashrc
+          source ~/.bashrc
+          echo "Allure Installed Successfully!"
 
       - name: Generate Allure HTML Report
         run: |
-          allure generate reports/allure-results -o reports/allure-report --clean
+          /opt/allure/bin/allure generate reports/allure-results -o reports/allure-report --clean
 
       - name: Upload Allure HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: allure-html-report
           path: reports/allure-report
