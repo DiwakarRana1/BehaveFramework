@@ -21,22 +21,38 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Cache Python Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Behave Tests
-        run: behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results
+      - name: Cache Allure Installation
+        id: cache-allure
+        uses: actions/cache@v3
+        with:
+          path: /opt/allure
+          key: ${{ runner.os }}-allure-latest
 
-      - name: Install Allure Commandline
+      - name: Install Allure (if not cached)
+        if: steps.cache-allure.outputs.cache-hit != 'true'
         run: |
-          wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.23.0.tgz
-          tar -zxvf allure-2.23.0.tgz
-          sudo mv allure-2.23.0 /opt/allure
+          LATEST_ALLURE_VERSION=$(curl -s https://api.github.com/repos/allure-framework/allure2/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          wget https://github.com/allure-framework/allure2/releases/download/${LATEST_ALLURE_VERSION}/allure-${LATEST_ALLURE_VERSION}.tgz
+          tar -zxvf allure-${LATEST_ALLURE_VERSION}.tgz
+          sudo mv allure-${LATEST_ALLURE_VERSION} /opt/allure
           echo "export PATH=\$PATH:/opt/allure/bin" >> ~/.bashrc
           source ~/.bashrc
-          echo "Allure Installed Successfully!"
+
+      - name: Run Behave Tests
+        run: behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results
 
       - name: Generate Allure HTML Report
         run: |
