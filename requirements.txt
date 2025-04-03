@@ -1,3 +1,4 @@
 behave
 selenium
 allure-behave
+webdriver-manager
