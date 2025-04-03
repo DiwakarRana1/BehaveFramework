@@ -2,9 +2,7 @@ import logging
 import os
 
 import allure
-from selenium import webdriver
 from utility.browser_selection import get_driver, open_new_window
-from utility.web_page_actions import WebPageActions
 from utility.screenshot import take_screenshot
 
 def before_all(context):

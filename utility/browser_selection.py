@@ -1,4 +1,5 @@
 import shutil
+import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -12,11 +13,19 @@ def open_new_window(driver):
         driver.switch_to.new_window('window')
 
 
-
 def get_driver(browser_name):
     if browser_name.lower() == "chrome":
         options = webdriver.ChromeOptions()
         options.page_load_strategy = 'eager'
+
+        # Set a unique user data directory to prevent conflicts
+        user_data_dir = f"/tmp/chrome-user-data-{os.getpid()}"
+        options.add_argument(f"--user-data-dir={user_data_dir}")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--headless=new")  # Run Chrome in headless mode for CI/CD
+
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
 
     elif browser_name.lower() == "firefox":
@@ -31,11 +40,5 @@ def get_driver(browser_name):
 
     else:
         raise ValueError(f"Unsupported browser: {browser_name}")
-
-    # Close initial empty window only if a second window exists
-    if len(driver.window_handles) > 1:
-        driver.switch_to.window(driver.window_handles[0])  # Switch to the first window
-        driver.close()  # Close the empty window
-        driver.switch_to.window(driver.window_handles[0])  # Switch back to the remaining window
 
     return driver

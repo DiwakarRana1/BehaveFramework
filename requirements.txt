@@ -1,0 +1,6 @@
+behave~=1.2.6
+selenium~=4.30.0
+allure-behave
+webdriver-manager~=4.0.2
+
+allure-python-commons~=2.13.5
