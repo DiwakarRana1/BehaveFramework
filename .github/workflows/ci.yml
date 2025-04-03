@@ -43,7 +43,7 @@ jobs:
           /opt/allure/bin/allure generate reports/allure-results -o reports/allure-report --clean
 
       - name: Upload Allure HTML Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-html-report
           path: reports/allure-report
