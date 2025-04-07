@@ -98,9 +98,9 @@ jobs:
         id: set_subject
         run: |
           if [ "${{ needs.test.result }}" == "success" ]; then
-            echo "subject=✅ Tests Passed on Merge to Master" >> $GITHUB_OUTPUT
+            echo "subject= ests Passed on Merge to Master" >> $GITHUB_OUTPUT
           else
-            echo "subject=❌ Tests Failed on Merge to Master" >> $GITHUB_OUTPUT
+            echo "subject= Tests Failed on Merge to Master" >> $GITHUB_OUTPUT
           fi
 
       - name: Send Email with Allure Report Link
@@ -118,7 +118,7 @@ jobs:
 
             A PR was merged into the master branch and the tests have run.
 
-            ✅ View the full Allure Report here:
+            View the full Allure Report here:
             https://diwakarrana1.github.io/BehaveFramework/
 
             Regards,  
