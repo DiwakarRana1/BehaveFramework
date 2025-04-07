@@ -17,4 +17,9 @@ def step_submit_form(context):
 
 @then("the input values should be correctly displayed")
 def step_verify_input_values(context):
-    assert context.text_box_page.get_element_value(context.text_box_page.full_name_locator) == USER_DATA["Full Name"], "Full Name Mismatch!"
+    expected = USER_DATA
+
+    assert context.text_box_page.get_displayed_name() == expected["Full Name"], "Full Name Mismatch!"
+    assert context.text_box_page.get_displayed_email() == expected["Email"], "Email Mismatch!"
+    assert context.text_box_page.get_displayed_current_address() == expected["Current Address"], "Current Address Mismatch!"
+    assert context.text_box_page.get_displayed_permanent_address() == expected["Permanent Address"], "Permanent Address Mismatch!"

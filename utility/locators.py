@@ -12,3 +12,7 @@ class PageLocators:
     NewTabButton = (By.XPATH, "//button[contains(text(), 'New Tab')]")
     AlertMenu = (By.XPATH, "//div[@class='header-text'][contains(text(), 'Alerts, Frame & Windows')]")
     BrowserMenu = (By.XPATH, "//span[@class='text'][contains(text(), 'Browser Windows')]")
+    OutputName = (By.XPATH, "//p[@id='name']")
+    OutputEmail = (By.XPATH, "//p[@id='email']")
+    OutputCurrentAddress = (By.XPATH, "//p[@id='currentAddress']")
+    OutputPermanentAddress = (By.XPATH, "//p[@id='permanentAddress']")
