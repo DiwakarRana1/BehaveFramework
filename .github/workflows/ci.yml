@@ -8,13 +8,12 @@ on:
     branches:
       - '**'
   pull_request:
-    branches:
-      - master
+    types: [closed]  # Detect PR merges
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true  # Deploy job to run even if tests fail
+    continue-on-error: true  # Deploy job should run even if tests fail
 
     steps:
       - name: Checkout Repository
@@ -69,7 +68,6 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     steps:
       - name: Checkout Repository
@@ -88,6 +86,14 @@ jobs:
           publish_dir: ./allure-report
           force_orphan: true
 
+  email:
+    needs: [test, deploy]
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'master'
+
+    steps:
       - name: Set Email Subject Based on Test Result
         id: set_subject
         run: |
@@ -110,9 +116,9 @@ jobs:
           body: |
             Hello,
 
-            The test run has completed on the master branch.
+            A PR was merged into the master branch and the tests have run.
 
-            View the full Allure Report here:
+            ✅ View the full Allure Report here:
             https://diwakarrana1.github.io/BehaveFramework/
 
             Regards,  
