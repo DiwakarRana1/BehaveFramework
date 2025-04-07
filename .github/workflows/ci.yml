@@ -8,13 +8,12 @@ on:
     branches:
       - '**'
   pull_request:
-    branches:
-      - master
+    types: [closed]  # Detect PR merges
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true  # Ensure deploy/email step runs even on failure
+    continue-on-error: true  # Deploy job should run even if tests fail
 
     steps:
       - name: Checkout Repository
@@ -52,8 +51,6 @@ jobs:
           wget https://github.com/allure-framework/allure2/releases/download/${LATEST_ALLURE_VERSION}/allure-${LATEST_ALLURE_VERSION}.tgz
           tar -zxvf allure-${LATEST_ALLURE_VERSION}.tgz
           sudo mv allure-${LATEST_ALLURE_VERSION} /opt/allure
-          echo "export PATH=\$PATH:/opt/allure/bin" >> ~/.bashrc
-          source ~/.bashrc
 
       - name: Run Behave Tests
         run: behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results
@@ -89,13 +86,21 @@ jobs:
           publish_dir: ./allure-report
           force_orphan: true
 
+  email:
+    needs: [test, deploy]
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'master'
+
+    steps:
       - name: Set Email Subject Based on Test Result
         id: set_subject
         run: |
           if [ "${{ needs.test.result }}" == "success" ]; then
-            echo "subject= Tests Passed" >> $GITHUB_OUTPUT
+            echo "subject= ests Passed on Merge to Master" >> $GITHUB_OUTPUT
           else
-            echo "subject= Tests Failed" >> $GITHUB_OUTPUT
+            echo "subject= Tests Failed on Merge to Master" >> $GITHUB_OUTPUT
           fi
 
       - name: Send Email with Allure Report Link
@@ -111,10 +116,10 @@ jobs:
           body: |
             Hello,
 
-            The Test are completed.
+            A PR was merged into the master branch and the tests have run.
 
-             View the full Allure Report here:
-             https://diwakarrana1.github.io/BehaveFramework/
+            View the full Allure Report here:
+            https://diwakarrana1.github.io/BehaveFramework/
 
             Regards,  
             Diwakar Rana
