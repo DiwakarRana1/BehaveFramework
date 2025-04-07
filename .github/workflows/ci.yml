@@ -14,6 +14,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    continue-on-error: true  # Ensure deploy/email step runs even on failure
 
     steps:
       - name: Checkout Repository
@@ -70,11 +71,12 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download Report Artifact
+      - name: Download Allure HTML Report
         uses: actions/download-artifact@v4
         with:
           name: allure-html-report
@@ -85,3 +87,34 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
+          force_orphan: true
+
+      - name: Set Email Subject Based on Test Result
+        id: set_subject
+        run: |
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "subject= Tests Passed" >> $GITHUB_OUTPUT
+          else
+            echo "subject= Tests Failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Email with Allure Report Link
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ${{ steps.set_subject.outputs.subject }}
+          to: rahul.dash@cloudsufi.com
+          from: ${{ secrets.EMAIL_USERNAME }}
+          body: |
+            Hello,
+
+            The Test are completed.
+
+             View the full Allure Report here:
+             https://diwakarrana1.github.io/BehaveFramework/
+
+            Regards,  
+            Diwakar Rana
