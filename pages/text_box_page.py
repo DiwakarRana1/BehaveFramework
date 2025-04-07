@@ -27,3 +27,15 @@ class TextBoxPage(WebPageActions):
     def submit_button_click(self):
         """Click on the submit button"""
         self.click_element(self.submit_button_locator)
+
+    def get_displayed_name(self):
+        return self.driver.find_element(*PageLocators.OutputName).text.replace("Name:", "").strip()
+
+    def get_displayed_email(self):
+        return self.driver.find_element(*PageLocators.OutputEmail).text.replace("Email:", "").strip()
+
+    def get_displayed_current_address(self):
+        return self.driver.find_element(*PageLocators.OutputCurrentAddress).text.replace("Current Address :", "").strip()
+
+    def get_displayed_permanent_address(self):
+        return self.driver.find_element(*PageLocators.OutputPermanentAddress).text.replace("Permananet Address :", "").strip()

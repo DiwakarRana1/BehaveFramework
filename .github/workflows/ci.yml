@@ -1,3 +1,6 @@
+permissions:
+  contents: write
+
 name: Run Behave Tests
 
 on:
@@ -63,3 +66,22 @@ jobs:
         with:
           name: allure-html-report
           path: reports/allure-report
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Report Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-html-report
+          path: ./allure-report
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
