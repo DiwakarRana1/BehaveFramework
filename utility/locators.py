@@ -8,7 +8,7 @@ class PageLocators:
     Email = (By.ID, "userEmail")
     CurrentAddress = (By.ID, "currentAddress")
     PermanentAddress = (By.ID, "permanentAddress")
-    SubmitButton = (By.ID, "submit")
+    SubmitButton = (By.ID, "submits")
     NewTabButton = (By.XPATH, "//button[contains(text(), 'New Tab')]")
     AlertMenu = (By.XPATH, "//div[@class='header-text'][contains(text(), 'Alerts, Frame & Windows')]")
     BrowserMenu = (By.XPATH, "//span[@class='text'][contains(text(), 'Browser Windows')]")
