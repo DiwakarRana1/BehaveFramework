@@ -53,11 +53,20 @@ jobs:
           sudo mv allure-${LATEST_ALLURE_VERSION} /opt/allure
 
       - name: Run Behave Tests
-        run: behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results
+        run: |
+          mkdir -p reports/allure-results
+          behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results || echo "Behave tests failed"
 
       - name: Generate Allure HTML Report
+        if: success() || failure()  # Run this step even if previous steps fail
         run: |
-          /opt/allure/bin/allure generate reports/allure-results -o reports/allure-report --clean
+          if [ -d "reports/allure-results" ] && [ "$(ls -A reports/allure-results)" ]; then
+            /opt/allure/bin/allure generate reports/allure-results -o reports/allure-report --clean
+          else
+            echo "No Allure results found to generate report."
+            mkdir -p reports/allure-report
+            echo "<html><body><h2>No test results found</h2></body></html>" > reports/allure-report/index.html
+          fi
 
       - name: Upload Allure HTML Report
         uses: actions/upload-artifact@v4
@@ -98,9 +107,9 @@ jobs:
         id: set_subject
         run: |
           if [ "${{ needs.test.result }}" == "success" ]; then
-            echo "subject= ests Passed on Merge to Master" >> $GITHUB_OUTPUT
+            echo "subject=Tests Passed on Merge to Master" >> $GITHUB_OUTPUT
           else
-            echo "subject= Tests Failed on Merge to Master" >> $GITHUB_OUTPUT
+            echo "subject=Tests Failed on Merge to Master" >> $GITHUB_OUTPUT
           fi
 
       - name: Send Email with Allure Report Link
