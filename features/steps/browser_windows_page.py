@@ -24,4 +24,4 @@ def step_switch_to_new_tab(context):
     """Switch to the newly opened tab and then switch back."""
     new_tab_page = NewTabPage(context.driver)
     new_tab_page.switch_to_new_tab()  # Switch to the new tab
-    new_tab_page.close_new_tab_and_switch_back()  # Close and return to the main tab
+    new_tab_page.close_new_tab_and_switch_back()
