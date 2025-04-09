@@ -18,17 +18,17 @@ class WebPageActions:
         self.driver.get(url_to_open)
 
     def _wait_for_element(self, locator, condition, action_desc="waiting for element"):
-        """Reusable wait method with better error reporting"""
+        """Reusable wait method with clean error reporting"""
         try:
             return WebDriverWait(self.driver, 10).until(condition(locator))
         except TimeoutException as e:
-            with allure.step(f"Timeout while {action_desc}: {locator}"):
+            with allure.step(f"Element not found during: {action_desc}"):
                 allure.attach(
                     str(locator),
                     name="Locator Info",
                     attachment_type=allure.attachment_type.TEXT
                 )
-            raise AssertionError(f"[TimeoutException] {action_desc.capitalize()} failed for locator: {locator}") from e
+            raise AssertionError(f"Failed to locate element for {action_desc}: {locator}") from e
 
     def click_element(self, locator):
         """Scroll and click an element"""
