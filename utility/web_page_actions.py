@@ -1,6 +1,8 @@
-from utility.config import URLS, USER_DATA
+import allure
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from utility.config import URLS, USER_DATA
 from utility.scroll import scroll_to_element
 
 class WebPageActions:
@@ -9,20 +11,43 @@ class WebPageActions:
         self.driver = driver
 
     def open(self, url):
-        url_to_open = URLS.get(url)  # To open a certain URL from Config file
+        """Open a URL from config"""
+        url_to_open = URLS.get(url)
+        if not url_to_open:
+            raise ValueError(f"URL not found for key: {url}")
         self.driver.get(url_to_open)
+
+    def _wait_for_element(self, locator, condition, action_desc="waiting for element"):
+        """Reusable wait method with better error reporting"""
+        try:
+            return WebDriverWait(self.driver, 10).until(condition(locator))
+        except TimeoutException as e:
+            with allure.step(f"Timeout while {action_desc}: {locator}"):
+                allure.attach(
+                    str(locator),
+                    name="Locator Info",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+            raise AssertionError(f"[TimeoutException] {action_desc.capitalize()} failed for locator: {locator}") from e
 
     def click_element(self, locator):
         """Scroll and click an element"""
         scroll_to_element(self.driver, locator)
-        WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(locator)
-        ).click()
+        element = self._wait_for_element(
+            locator,
+            EC.element_to_be_clickable,
+            action_desc="clicking element"
+        )
+        element.click()
 
     def enter_text(self, locator, text):
         """Enter text in a text field."""
-        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(locator))
-        element.clear()  # Clear existing text before entering new text
+        element = self._wait_for_element(
+            locator,
+            EC.visibility_of_element_located,
+            action_desc="entering text in element"
+        )
+        element.clear()
         element.send_keys(text)
 
     def enter_text_from_config(self, locator, field_name):
@@ -35,5 +60,9 @@ class WebPageActions:
 
     def get_element_value(self, locator):
         """Retrieve the current value of an input field"""
-        element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(locator))
-        return element.get_attribute("value")  # Get the current input value
+        element = self._wait_for_element(
+            locator,
+            EC.visibility_of_element_located,
+            action_desc="getting value from element"
+        )
+        return element.get_attribute("value")
