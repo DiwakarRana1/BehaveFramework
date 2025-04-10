@@ -1,0 +1,4 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","2445","Open the URL and and click on Elements","","Thu Apr 10 04:56:38 UTC 2025","passed","Thu Apr 10 04:56:40 UTC 2025","","","",""
+"","16373","Opening the new tab and Switching Back to Original","","Thu Apr 10 04:56:21 UTC 2025","passed","Thu Apr 10 04:56:38 UTC 2025","","","",""
+"","23777","Fill and submit the text box form","","Thu Apr 10 04:56:40 UTC 2025","failed","Thu Apr 10 04:57:04 UTC 2025","","","",""
