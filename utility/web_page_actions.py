@@ -2,8 +2,9 @@ import allure
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from utility.config import URLS, USER_DATA
+from utility.config import URLS, USER_DATA, HRM_DATA
 from utility.scroll import scroll_to_element
+from utility.fake_data import get_latest_employee  # ✅ Import this
 
 class WebPageActions:
 
@@ -52,7 +53,8 @@ class WebPageActions:
 
     def enter_text_from_config(self, locator, field_name):
         """Enter text into a field using data from config.py"""
-        text_to_enter = USER_DATA.get(field_name, "")
+        # text_to_enter = USER_DATA.get(field_name, "")
+        text_to_enter = HRM_DATA.get(field_name, "")
         if text_to_enter:
             self.enter_text(locator, text_to_enter)
         else:
@@ -66,3 +68,8 @@ class WebPageActions:
             action_desc="getting value from element"
         )
         return element.get_attribute("value")
+
+    @property
+    def latest_fake_employee(self):
+        """Return the most recently created fake employee"""
+        return get_latest_employee()

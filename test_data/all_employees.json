@@ -1,0 +1,152 @@
+[
+    {
+        "first_name": "Jasmine",
+        "last_name": "Dyer",
+        "username": "robertmills",
+        "password": "Xq4OmQ7G%%",
+        "email": "odonnelltheodore@example.com",
+        "created_at": "2025-04-11 16:26:47"
+    },
+    {
+        "first_name": "Michelle",
+        "last_name": "Campbell",
+        "username": "campbelltiffany",
+        "password": "PmG4OwL^!a",
+        "email": "rileysuzanne@example.net",
+        "created_at": "2025-04-11 16:30:16"
+    },
+    {
+        "first_name": "Christina",
+        "last_name": "Bond",
+        "username": "ycohen",
+        "password": "uYt39&Ruv^",
+        "email": "cbrown@example.net",
+        "created_at": "2025-04-11 16:33:08"
+    },
+    {
+        "employee_id": 5679,
+        "first_name": "Elizabeth",
+        "last_name": "Ramos",
+        "created_at": "2025-04-11 16:51:40"
+    },
+    {
+        "employee_id": 8222,
+        "first_name": "Edward",
+        "last_name": "Cummings",
+        "created_at": "2025-04-11 16:52:42"
+    },
+    {
+        "employee_id": 2226,
+        "first_name": "Timothy",
+        "last_name": "Walker",
+        "created_at": "2025-04-13 16:58:11"
+    },
+    {
+        "employee_id": 9370,
+        "first_name": "Jose",
+        "last_name": "Stewart",
+        "created_at": "2025-04-13 17:36:22"
+    },
+    {
+        "employee_id": 2019,
+        "first_name": "Gina",
+        "last_name": "Baker",
+        "created_at": "2025-04-13 17:40:12"
+    },
+    {
+        "employee_id": 3035,
+        "first_name": "Samuel",
+        "last_name": "Day",
+        "created_at": "2025-04-13 17:42:17"
+    },
+    {
+        "employee_id": 8281,
+        "first_name": "Alicia",
+        "last_name": "Malone",
+        "created_at": "2025-04-13 17:45:32"
+    },
+    {
+        "employee_id": 9465,
+        "first_name": "Charles",
+        "last_name": "Garcia",
+        "created_at": "2025-04-13 21:00:52"
+    },
+    {
+        "employee_id": 9512,
+        "first_name": "Megan",
+        "last_name": "Crawford",
+        "created_at": "2025-04-13 21:10:42"
+    },
+    {
+        "employee_id": 6883,
+        "first_name": "Kimberly",
+        "last_name": "Scott",
+        "created_at": "2025-04-13 21:24:46"
+    },
+    {
+        "employee_id": 2455,
+        "first_name": "Carly",
+        "last_name": "Zhang",
+        "created_at": "2025-04-13 21:29:17"
+    },
+    {
+        "employee_id": 6018,
+        "first_name": "Christina",
+        "last_name": "Allen",
+        "created_at": "2025-04-13 21:46:16"
+    },
+    {
+        "employee_id": 2508,
+        "first_name": "Kevin",
+        "last_name": "Stephens",
+        "created_at": "2025-04-13 21:48:47"
+    },
+    {
+        "employee_id": 5046,
+        "first_name": "Christopher",
+        "last_name": "Ward",
+        "created_at": "2025-04-13 21:49:22"
+    },
+    {
+        "employee_id": 4300,
+        "first_name": "Miguel",
+        "last_name": "Rios",
+        "created_at": "2025-04-13 21:51:05"
+    },
+    {
+        "employee_id": 2949,
+        "first_name": "Tina",
+        "last_name": "Martin",
+        "created_at": "2025-04-13 21:52:57"
+    },
+    {
+        "employee_id": 4252,
+        "first_name": "Laura",
+        "last_name": "Anderson",
+        "created_at": "2025-04-13 22:00:30"
+    },
+    {
+        "employee_id": 2064,
+        "first_name": "Charles",
+        "last_name": "Johnson",
+        "created_at": "2025-04-13 22:01:36"
+    },
+    {
+        "employee_id": 5576,
+        "first_name": "Dawn",
+        "last_name": "Dunn",
+        "created_at": "2025-04-13 22:04:41"
+    },
+    {
+        "employee_id": 4407,
+        "first_name": "George",
+        "last_name": "Erickson",
+        "created_at": "2025-04-13 22:08:44"
+    },
+    {
+        "employee_id": 2274,
+        "first_name": "Charles",
+        "last_name": "Stafford",
+        "created_at": "2025-04-13 22:10:13"
+    }
+]
