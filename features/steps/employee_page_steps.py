@@ -17,7 +17,7 @@ def step_navigate_to_add_employee(context):
 @when("I fill in new employee details")
 def step_fill_employee_details(context):
     employee = generate_employee_data()
-    context.employee_data = employee  # Save for later validation if needed
+    context.employee_data = employee  # Save for later validation
     context.employee_page.enter_emp_details(employee)
 
 
