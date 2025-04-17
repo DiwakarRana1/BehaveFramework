@@ -1,0 +1,1 @@
+Run command: sudo docker-compose -d
