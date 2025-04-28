@@ -158,7 +158,7 @@ jobs:
       - name: Run Behave Tests
         run: |
           mkdir -p reports/allure-results
-          behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results --define healenium=false || echo "Behave tests failed"
+          behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results --define healenium=true || echo "Behave tests failed"
 
       - name: Generate Allure HTML Report
         if: success() || failure()
