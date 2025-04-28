@@ -8,12 +8,12 @@ on:
     branches:
       - '**'
   pull_request:
-    types: [closed]  # Detect PR merges
+    types: [closed]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true  # Deploy job should run even if tests fail
+    continue-on-error: true
 
     services:
       postgres-db:
@@ -25,11 +25,13 @@ jobs:
           POSTGRES_SCHEMA: "healenium"
         ports:
           - 5432:5432
+        volumes:
+          - ./db:/docker-entrypoint-initdb.d
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U healenium_user"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
       healenium:
         image: healenium/hlm-backend:3.4.6
@@ -51,18 +53,18 @@ jobs:
         options: >-
           --health-cmd "curl -f http://localhost:7878/actuator/health || exit 1"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 10s
+          --health-retries 10
 
       selector-imitator:
         image: healenium/hlm-selector-imitator:1.4
         ports:
           - 8000:8000
         options: >-
-          --health-cmd "curl -f http://localhost:8000/actuator/health || exit 1"
+          --health-cmd "curl -f http://localhost:8000/docs || exit 1"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 10s
+          --health-retries 10
 
       hlm-proxy:
         image: healenium/hlm-proxy:2.1.1
@@ -80,8 +82,8 @@ jobs:
         options: >-
           --health-cmd "curl -f http://localhost:8085/status || exit 1"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 10s
+          --health-retries 10
 
       selenium-hub:
         image: selenium/hub:latest
@@ -92,8 +94,8 @@ jobs:
         options: >-
           --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 10s
+          --health-retries 10
 
       chrome:
         image: selenium/node-chrome:latest
@@ -105,10 +107,7 @@ jobs:
           SE_NODE_MAX_SESSIONS: "5"
           SE_NODE_SESSION_TIMEOUT: "20"
         options: >-
-          --health-cmd "curl -f http://localhost:5555/wd/hub/status || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --shm-size="2g"
 
     steps:
       - name: Checkout Repository
@@ -147,19 +146,14 @@ jobs:
           tar -zxvf allure-${LATEST_ALLURE_VERSION}.tgz
           sudo mv allure-${LATEST_ALLURE_VERSION} /opt/allure
 
-      - name: Wait for services to be ready
+      - name: Wait for Services to Be Healthy
         run: |
-          echo "Waiting for services to be ready..."
-          sleep 30  # Give services time to initialize
-          curl -f http://localhost:7878/actuator/health || exit 1
-          curl -f http://localhost:8000/actuator/health || exit 1
-          curl -f http://localhost:8085/status || exit 1
-          curl -f http://localhost:4444/wd/hub/status || exit 1
-
-      - name: Initialize PostgreSQL Database
-        run: |
-          echo "Running db/init.sql on PostgreSQL..."
-          PGPASSWORD=YDk2nmNs4s9aCP6K psql -h localhost -U healenium_user -d healenium -f ./db/init.sql
+          echo "Waiting for services to become healthy..."
+          sleep 30
+          curl -f http://localhost:7878/actuator/health
+          curl -f http://localhost:8000/docs
+          curl -f http://localhost:8085/status
+          curl -f http://localhost:4444/wd/hub/status
 
       - name: Run Behave Tests
         run: |
