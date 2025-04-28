@@ -22,6 +22,7 @@ jobs:
           POSTGRES_DB: "healenium"
           POSTGRES_USER: "healenium_user"
           POSTGRES_PASSWORD: "YDk2nmNs4s9aCP6K"
+          POSTGRES_SCHEMA: "healenium"
         ports:
           - 5432:5432
         options: >-
@@ -33,11 +34,14 @@ jobs:
       healenium:
         image: healenium/hlm-backend:3.4.6
         env:
-          SPRING_POSTGRES_DB: "healenium"
-          SPRING_POSTGRES_SCHEMA: "healenium"
-          SPRING_POSTGRES_USER: "healenium_user"
-          SPRING_POSTGRES_PASSWORD: "YDk2nmNs4s9aCP6K"
-          SPRING_POSTGRES_DB_HOST: "postgres-db"
+          SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-db:5432/healenium"
+          SPRING_DATASOURCE_USERNAME: "healenium_user"
+          SPRING_DATASOURCE_PASSWORD: "YDk2nmNs4s9aCP6K"
+          SPRING_JPA_DATABASE: "postgresql"
+          SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.PostgreSQLDialect"
+          SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+          SPRING_JPA_SHOW_SQL: "true"
+          SPRING_LIQUIBASE_ENABLED: "false"
           KEY_SELECTOR_URL: "false"
           COLLECT_METRICS: "true"
           FIND_ELEMENTS_AUTO_HEALING: "true"
@@ -67,7 +71,7 @@ jobs:
           SCORE_CAP: ".2"
           HEAL_ENABLED: "true"
           SELENIUM_SERVER_URL: "http://selenium-hub:4444/wd/hub"
-          HEALENIUM_SERVER_URL: "http://localhost:7878"
+          HEALENIUM_SERVER_URL: "http://healenium:7878"
           HEALENIUM_SERVICE: "http://healenium:7878"
           IMITATE_SERVICE: "http://selector-imitator:8000"
           HLM_LOG_LEVEL: "info"
