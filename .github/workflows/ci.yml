@@ -104,7 +104,6 @@ jobs:
           SE_NODE_MAX_INSTANCES: "5"
           SE_NODE_MAX_SESSIONS: "5"
           SE_NODE_SESSION_TIMEOUT: "20"
-        # shm_size: 2gb
         options: >-
           --health-cmd "curl -f http://localhost:5555/wd/hub/status || exit 1"
           --health-interval 10s
@@ -117,7 +116,6 @@ jobs:
           SE_EVENT_BUS_HOST: "selenium-hub"
           SE_EVENT_BUS_PUBLISH_PORT: "4442"
           SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
-        # shm_size: 2gb
         options: >-
           --health-cmd "curl -f http://localhost:5555/wd/hub/status || exit 1"
           --health-interval 10s
@@ -130,7 +128,6 @@ jobs:
           SE_EVENT_BUS_HOST: "selenium-hub"
           SE_EVENT_BUS_PUBLISH_PORT: "4442"
           SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
-        # shm_size: 2gb
         options: >-
           --health-cmd "curl -f http://localhost:5555/wd/hub/status || exit 1"
           --health-interval 10s
@@ -173,6 +170,15 @@ jobs:
           wget https://github.com/allure-framework/allure2/releases/download/${LATEST_ALLURE_VERSION}/allure-${LATEST_ALLURE_VERSION}.tgz
           tar -zxvf allure-${LATEST_ALLURE_VERSION}.tgz
           sudo mv allure-${LATEST_ALLURE_VERSION} /opt/allure
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to be ready..."
+          sleep 30  # Give services time to initialize
+          curl -f http://localhost:7878/actuator/health || exit 1
+          curl -f http://localhost:8000/actuator/health || exit 1
+          curl -f http://localhost:8085/status || exit 1
+          curl -f http://localhost:4444/wd/hub/status || exit 1
 
       - name: Run Behave Tests
         run: |
