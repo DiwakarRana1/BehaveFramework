@@ -110,7 +110,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -157,14 +156,18 @@ jobs:
           curl -f http://localhost:8085/status || exit 1
           curl -f http://localhost:4444/wd/hub/status || exit 1
 
+      - name: Initialize PostgreSQL Database
+        run: |
+          echo "Running db/init.sql on PostgreSQL..."
+          PGPASSWORD=YDk2nmNs4s9aCP6K psql -h localhost -U healenium_user -d healenium -f ./db/init.sql
+
       - name: Run Behave Tests
         run: |
           mkdir -p reports/allure-results
-          # Run tests with Healenium disabled/enabled
           behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results --define healenium=false || echo "Behave tests failed"
 
       - name: Generate Allure HTML Report
-        if: success() || failure()  # Run this step even if previous steps fail
+        if: success() || failure()
         run: |
           if [ -d "reports/allure-results" ] && [ "$(ls -A reports/allure-results)" ]; then
             /opt/allure/bin/allure generate reports/allure-results -o reports/allure-report --clean
