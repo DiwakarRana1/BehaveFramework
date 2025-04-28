@@ -15,6 +15,124 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true  # Deploy job should run even if tests fail
 
+    services:
+      postgres-db:
+        image: postgres:15.5-alpine
+        env:
+          POSTGRES_DB: "healenium"
+          POSTGRES_USER: "healenium_user"
+          POSTGRES_PASSWORD: "YDk2nmNs4s9aCP6K"
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      healenium:
+        image: healenium/hlm-backend:3.4.6
+        env:
+          SPRING_POSTGRES_DB: "healenium"
+          SPRING_POSTGRES_SCHEMA: "healenium"
+          SPRING_POSTGRES_USER: "healenium_user"
+          SPRING_POSTGRES_PASSWORD: "YDk2nmNs4s9aCP6K"
+          SPRING_POSTGRES_DB_HOST: "postgres-db"
+          KEY_SELECTOR_URL: "false"
+          COLLECT_METRICS: "true"
+          FIND_ELEMENTS_AUTO_HEALING: "true"
+          HLM_LOG_LEVEL: "debug"
+        ports:
+          - 7878:7878
+        options: >-
+          --health-cmd "curl -f http://localhost:7878/actuator/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      selector-imitator:
+        image: healenium/hlm-selector-imitator:1.4
+        ports:
+          - 8000:8000
+        options: >-
+          --health-cmd "curl -f http://localhost:8000/actuator/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      hlm-proxy:
+        image: healenium/hlm-proxy:2.1.1
+        env:
+          RECOVERY_TRIES: "3"
+          SCORE_CAP: ".2"
+          HEAL_ENABLED: "true"
+          SELENIUM_SERVER_URL: "http://selenium-hub:4444/wd/hub"
+          HEALENIUM_SERVER_URL: "http://localhost:7878"
+          HEALENIUM_SERVICE: "http://healenium:7878"
+          IMITATE_SERVICE: "http://selector-imitator:8000"
+          HLM_LOG_LEVEL: "info"
+        ports:
+          - 8085:8085
+        options: >-
+          --health-cmd "curl -f http://localhost:8085/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      selenium-hub:
+        image: selenium/hub:latest
+        ports:
+          - 4442:4442
+          - 4443:4443
+          - 4444:4444
+        options: >-
+          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      chrome:
+        image: selenium/node-chrome:latest
+        env:
+          SE_EVENT_BUS_HOST: "selenium-hub"
+          SE_EVENT_BUS_PUBLISH_PORT: "4442"
+          SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
+          SE_NODE_MAX_INSTANCES: "5"
+          SE_NODE_MAX_SESSIONS: "5"
+          SE_NODE_SESSION_TIMEOUT: "20"
+        # shm_size: 2gb
+        options: >-
+          --health-cmd "curl -f http://localhost:5555/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      firefox:
+        image: selenium/node-firefox:latest
+        env:
+          SE_EVENT_BUS_HOST: "selenium-hub"
+          SE_EVENT_BUS_PUBLISH_PORT: "4442"
+          SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
+        # shm_size: 2gb
+        options: >-
+          --health-cmd "curl -f http://localhost:5555/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      edge:
+        image: selenium/node-edge:latest
+        env:
+          SE_EVENT_BUS_HOST: "selenium-hub"
+          SE_EVENT_BUS_PUBLISH_PORT: "4442"
+          SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
+        # shm_size: 2gb
+        options: >-
+          --health-cmd "curl -f http://localhost:5555/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -55,7 +173,8 @@ jobs:
       - name: Run Behave Tests
         run: |
           mkdir -p reports/allure-results
-          behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results || echo "Behave tests failed"
+          # Run tests with Healenium disabled/enabled
+          behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results --define healenium=false || echo "Behave tests failed"
 
       - name: Generate Allure HTML Report
         if: success() || failure()  # Run this step even if previous steps fail

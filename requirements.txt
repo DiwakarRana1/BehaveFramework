@@ -5,3 +5,4 @@ webdriver-manager~=4.0.2
 
 allure-python-commons~=2.13.5
 Faker~=37.1.0
+pytz~=2024.1

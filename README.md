@@ -1,0 +1,154 @@
+# Behave Framework with Healenium Integration and Multilocator Support
+
+This project implements a robust test automation framework using Behave (Python's BDD framework) with Selenium WebDriver, Healenium integration for self-healing tests and Multilocator Support.
+
+## Project Structure
+
+```
+behaveFramework/
+├── features/                 # Behave feature files and step definitions
+│   ├── environment.py       # Behave environment setup and hooks
+│   ├── steps/              # Step definition files
+│   └── *.feature           # Feature files containing test scenarios
+├── pages/                   # Page Object Model classes
+├── utility/                 # Utility functions and helper classes
+│   ├── browser_selection.py # Browser configuration and driver setup
+│   ├── web_page_actions.py  # Common web actions and element interactions
+│   └── screenshot.py        # Screenshot handling utilities
+├── test_data/              # Test data files and configurations
+├── screenshots/            # Test execution screenshots
+├── reports/                # Test execution reports
+├── logs/                   # Application logs
+├── db/                     # Database related files
+├── docker-compose.yml      # Docker configuration for Healenium
+└── requirements.txt        # Python dependencies
+```
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Chrome/Firefox browser
+- Docker and Docker Compose (for Healenium)
+- Git
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone <your-repository-url>
+cd behaveFramework
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Linux/Mac
+# OR
+.venv\Scripts\activate     # On Windows
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Start Healenium services (if using Healenium):
+```bash
+docker-compose up -d
+```
+
+## Running Tests
+
+### Basic Test Execution
+```bash
+behave features/hrm_login.feature
+```
+
+### With Specific Browser
+```bash
+behave features/hrm_login.feature --define browser=chrome
+# OR
+behave features/hrm_login.feature --define browser=firefox
+```
+
+### With Healenium
+```bash
+behave features/hrm_login.feature --define healenium=true
+```
+
+### Without Healenium
+```bash
+behave features/hrm_login.feature --define healenium=false
+```
+
+### Generate Allure Reports
+```bash
+behave features/hrm_login.feature -f allure_behave.formatter:AllureFormatter -o reports/
+allure serve reports/
+```
+
+## Key Features
+
+1. **BDD Approach**: Using Behave for behavior-driven development
+2. **Page Object Model**: Organized page classes for better maintenance
+3. **Healenium Integration**: Self-healing tests for improved stability
+4. **Cross-browser Testing**: Support for Chrome and Firefox
+5. **Screenshot Capture**: Automatic screenshots on test failures
+6. **Allure Reporting**: Detailed test execution reports
+7. **Logging**: Comprehensive logging for debugging
+8. **Docker Support**: Easy setup of Healenium services
+
+## Configuration
+
+### Browser Configuration
+- Default browser: Chrome
+- Supported browsers: Chrome, Firefox
+- Configurable through command line arguments
+
+### Healenium Configuration
+- Server host: localhost
+- Server port: 7878
+- Imitate port: 8000
+- Healing enabled: true/false
+- Recovery tries: 5
+- Score cap: 0.6
+
+## Best Practices
+
+1. **Writing Features**:
+   - Use clear, descriptive scenario names
+   - Follow the Given-When-Then format
+   - Keep scenarios focused and atomic
+
+2. **Page Objects**:
+   - One class per page
+   - Encapsulate page-specific logic
+   - Use meaningful locator names
+
+3. **Step Definitions**:
+   - Reuse steps when possible
+   - Keep steps simple and focused
+   - Use appropriate assertions
+
+4. **Test Data**:
+   - Store test data in test_data directory
+   - Use configuration files for environment-specific data
+   - Avoid hardcoding test data
+
+## Troubleshooting
+
+1. **Browser Issues**:
+   - Ensure Chrome/Firefox is installed
+   - Check ChromeDriver/GeckoDriver compatibility
+   - Verify browser binary paths
+
+2. **Healenium Issues**:
+   - Check Docker services are running
+   - Verify Healenium server connectivity
+   - Check healing configuration
+
+3. **Test Failures**:
+   - Check screenshots in screenshots directory
+   - Review logs in logs directory
+   - Verify element locators
+
