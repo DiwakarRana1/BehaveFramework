@@ -2,7 +2,7 @@ import allure
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from utility.config import URLS, USER_DATA, HRM_DATA
+from utility.config import URLS, USER_DATA, HRM_DATA, USER_MGT
 from utility.scroll import scroll_to_element
 from utility.fake_data import get_latest_employee
 import time
@@ -143,7 +143,7 @@ class WebPageActions:
 
     def enter_text_from_config(self, locator, field_name):
         """Enter text from config with healing support"""
-        text = USER_DATA.get(field_name) or HRM_DATA.get(field_name)
+        text = USER_DATA.get(field_name) or HRM_DATA.get(field_name) or USER_MGT.get(field_name)
         if not text:
             raise ValueError(f"Text not found for field: {field_name}")
         self.enter_text(locator, text)

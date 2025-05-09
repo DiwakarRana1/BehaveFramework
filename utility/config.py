@@ -3,6 +3,7 @@ URLS = { # Add other URLs as needed
     "google": "https://www.google.com",
     "demoQa": "https://demoqa.com/",
     "hrmDemo": "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login",
+    "userManagement": "http://192.168.0.162:5000",
 }
 
 USER_DATA = {
@@ -16,4 +17,9 @@ HRM_DATA = {
     "Username": "Admin",
     "Password": "admin123",
     "WrongPassword": "admin1234",
+}
+
+USER_MGT = {
+    "User_Email": "bharatgulati@cloudsufi.com",
+    "User_Password": "bharat098"
 }

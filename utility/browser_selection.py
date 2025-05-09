@@ -57,7 +57,7 @@ def get_driver(browser_name, use_healenium=False):
             options.add_argument("--disable-gpu")
             options.add_argument("--disable-extensions")
             options.add_argument("--disable-software-rasterizer")
-            options.add_argument("--headless")
+            # options.add_argument("--headless")
             
             # Set the Chrome binary location
             chrome_paths = [

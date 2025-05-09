@@ -1,237 +1,104 @@
-permissions:
-  contents: write
-
-name: Run Behave Tests
+name: Run Behave Tests & Generate Allure Report
 
 on:
   push:
     branches:
-      - '**'
+      - main
   pull_request:
-    types: [closed]
+    branches:
+      - main
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-
-    services:
-      postgres-db:
-        image: postgres:15.5-alpine
-        env:
-          POSTGRES_DB: "healenium"
-          POSTGRES_USER: "healenium_user"
-          POSTGRES_PASSWORD: "YDk2nmNs4s9aCP6K"
-          POSTGRES_SCHEMA: "healenium"
-        ports:
-          - 5432:5432
-        volumes:
-          - ./db:/docker-entrypoint-initdb.d
-        options: >-
-          --health-cmd "pg_isready -U healenium_user"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-
-      healenium:
-        image: healenium/hlm-backend:3.4.6
-        env:
-          SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-db:5432/healenium"
-          SPRING_DATASOURCE_USERNAME: "healenium_user"
-          SPRING_DATASOURCE_PASSWORD: "YDk2nmNs4s9aCP6K"
-          SPRING_JPA_DATABASE: "postgresql"
-          SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.PostgreSQLDialect"
-          SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
-          SPRING_JPA_SHOW_SQL: "true"
-          SPRING_LIQUIBASE_ENABLED: "false"
-          KEY_SELECTOR_URL: "false"
-          COLLECT_METRICS: "true"
-          FIND_ELEMENTS_AUTO_HEALING: "true"
-          HLM_LOG_LEVEL: "debug"
-        ports:
-          - 7878:7878
-        options: >-
-          --health-cmd "curl -f http://localhost:7878/actuator/health || exit 1"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-
-      selector-imitator:
-        image: healenium/hlm-selector-imitator:1.4
-        ports:
-          - 8000:8000
-        options: >-
-          --health-cmd "curl -f http://localhost:8000/docs || exit 1"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-
-      hlm-proxy:
-        image: healenium/hlm-proxy:2.1.1
-        env:
-          RECOVERY_TRIES: "3"
-          SCORE_CAP: ".2"
-          HEAL_ENABLED: "true"
-          SELENIUM_SERVER_URL: "http://selenium-hub:4444/wd/hub"
-          HEALENIUM_SERVER_URL: "http://healenium:7878"
-          HEALENIUM_SERVICE: "http://healenium:7878"
-          IMITATE_SERVICE: "http://selector-imitator:8000"
-          HLM_LOG_LEVEL: "info"
-        ports:
-          - 8085:8085
-        options: >-
-          --health-cmd "curl -f http://localhost:8085/status || exit 1"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-
-      selenium-hub:
-        image: selenium/hub:latest
-        ports:
-          - 4442:4442
-          - 4443:4443
-          - 4444:4444
-        options: >-
-          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
-
-      chrome:
-        image: selenium/node-chrome:latest
-        env:
-          SE_EVENT_BUS_HOST: "selenium-hub"
-          SE_EVENT_BUS_PUBLISH_PORT: "4442"
-          SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
-          SE_NODE_MAX_INSTANCES: "5"
-          SE_NODE_MAX_SESSIONS: "5"
-          SE_NODE_SESSION_TIMEOUT: "20"
-        options: >-
-          --shm-size="2g"
-
+    runs-on: self-hosted
+    name: Run Tests
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Cache Python Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install Dependencies
+      - name: Set up Python environment
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python3 --version
+          pip3 --version
+          python3 -m venv venv
+          source venv/bin/activate
 
-      - name: Cache Allure Installation
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+
+      - name: Cache Allure binary
         id: cache-allure
         uses: actions/cache@v3
         with:
-          path: /opt/allure
-          key: ${{ runner.os }}-allure-latest
+          path: $HOME/allure
+          key: allure-${{ runner.os }}-2.24.1
 
-      - name: Install Allure (if not cached)
+      - name: Install Allure if not cached
         if: steps.cache-allure.outputs.cache-hit != 'true'
         run: |
-          LATEST_ALLURE_VERSION=$(curl -s https://api.github.com/repos/allure-framework/allure2/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-          wget https://github.com/allure-framework/allure2/releases/download/${LATEST_ALLURE_VERSION}/allure-${LATEST_ALLURE_VERSION}.tgz
-          tar -zxvf allure-${LATEST_ALLURE_VERSION}.tgz
-          sudo mv allure-${LATEST_ALLURE_VERSION} /opt/allure
-
-      - name: Wait for Services to Be Healthy
-        run: |
-          echo "Waiting for services to become healthy..."
-          sleep 30
-          curl -f http://localhost:7878/actuator/health
-          curl -f http://localhost:8000/docs
-          curl -f http://localhost:8085/status
-          curl -f http://localhost:4444/wd/hub/status
+          curl -L https://github.com/allure-framework/allure2/releases/download/2.24.1/allure-2.24.1.tgz | tar -xz -C $HOME/
+          mv $HOME/allure-2.24.1 $HOME/allure
 
       - name: Run Behave Tests
         run: |
-          mkdir -p reports/allure-results
-          behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results --define healenium=true || echo "Behave tests failed"
+          source venv/bin/activate
+          behave --no-capture --no-capture-stderr --format allure_behave.formatter:AllureFormatter --outfile=allure-results
 
-      - name: Generate Allure HTML Report
-        if: success() || failure()
+      - name: Generate Allure Report
         run: |
-          if [ -d "reports/allure-results" ] && [ "$(ls -A reports/allure-results)" ]; then
-            /opt/allure/bin/allure generate reports/allure-results -o reports/allure-report --clean
+          source venv/bin/activate
+          if [ -d "allure-results" ] && [ "$(ls -A allure-results)" ]; then
+            $HOME/allure/bin/allure generate allure-results --clean -o allure-report
           else
-            echo "No Allure results found to generate report."
-            mkdir -p reports/allure-report
-            echo "<html><body><h2>No test results found</h2></body></html>" > reports/allure-report/index.html
+            mkdir -p allure-report && echo "<html><body><h1>No test results found</h1></body></html>" > allure-report/index.html
           fi
 
-      - name: Upload Allure HTML Report
+      - name: Upload Allure Report
         uses: actions/upload-artifact@v4
         with:
-          name: allure-html-report
-          path: reports/allure-report
+          name: allure-report
+          path: allure-report/
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
-
+    name: Deploy Allure Report to GitHub Pages
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Download Allure HTML Report
+      - name: Download report artifact
         uses: actions/download-artifact@v4
         with:
-          name: allure-html-report
-          path: ./allure-report
+          name: allure-report
+          path: public
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
-          force_orphan: true
+          publish_dir: ./public
+          publish_branch: gh-pages
 
-  email:
-    needs: [test, deploy]
+  comment-pr:
+    needs: deploy
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
-    if: >
-      github.event.pull_request.merged == true &&
-      github.event.pull_request.base.ref == 'master'
-
     steps:
-      - name: Set Email Subject Based on Test Result
-        id: set_subject
-        run: |
-          if [ "${{ needs.test.result }}" == "success" ]; then
-            echo "subject=Tests Passed on Merge to Master" >> $GITHUB_OUTPUT
-          else
-            echo "subject=Tests Failed on Merge to Master" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Send Email with Allure Report Link
-        uses: dawidd6/action-send-mail@v3
+      - name: Comment PR with Allure Report URL
+        uses: actions/github-script@v7
         with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: ${{ steps.set_subject.outputs.subject }}
-          to: rahul.dash@cloudsufi.com
-          from: ${{ secrets.EMAIL_USERNAME }}
-          body: |
-            Hello,
-
-            A PR was merged into the master branch and the tests have run.
-
-            View the full Allure Report here:
-            https://diwakarrana1.github.io/BehaveFramework/
-
-            Regards,  
-            Diwakar Rana
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const allureURL = "https://diwakarrana1.github.io/BehaveFramework/";
+            const body = `✅ Allure Report is available here: [Allure Report](${allureURL})`;
+            github.rest.issues.createComment({
+              issue_number: pr.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

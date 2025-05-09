@@ -18,7 +18,7 @@ class PageLocators:
     OutputPermanentAddress = (By.XPATH, "//div[@id='output']//p[@id='permanentAddress']")
     HrmUsername = (By.XPATH, "//div[contains(@class,'oxd-form-row')]//input[contains(@class,'oxd-input')]")
     HrmPassword = (By.NAME, "password")
-    HrmPassword_list = [(By.NAME, "passwords"), (By.XPATH, "//input[@type='passwords']"),] # To check if List of elements can be passed also.
+    HrmPassword_list = [(By.NAME, "passwords"), (By.XPATH, "//input[@type='password']"),] # To check if List of elements can be passed also.
     HrmLoginButton = (By.CSS_SELECTOR, "button[type='submit']")
     HrmLoginError = (By.CLASS_NAME, "oxd-alert-content-text")
     HrmSubmit = (By.XPATH, "//button[contains(@class,'oxd-button')]")
@@ -34,3 +34,7 @@ class PageLocators:
     DeleteButton = (By.XPATH, "//div[normalize-space()='Actions']/following::buttons[@type='button'][2]")
     ConfirmDelete = (By.XPATH, "//button[normalize-space()='Yes, Delete']")
     DashboardTitle = (By.CSS_SELECTOR, ".oxd-topbar-header-breadcrumb h6")
+    UsmLogin = (By.XPATH, "//div[@class='mt-4']/a[contains(text(), 'Login')]")
+    UsmEmail = (By.XPATH, "//input[@id= 'email-input']")
+    UsmPassword = (By.XPATH, "//input[@id= 'password-input']")
+    UsmLoginSubmit = (By.XPATH, "//input[@id= 'login-submit']")
